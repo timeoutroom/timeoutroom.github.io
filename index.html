@@ -159,6 +159,7 @@ function detectMotion() {
         startVideo();
     </script>
     </div>
+    
 </body>
 </html>
 <div class="aa">
@@ -177,127 +178,8 @@ function detectMotion() {
     </div>
   </div>
     <br>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        var input = document.getElementById("input");
-        var number = document.getElementById("number");
-        var box = document.getElementById("box");
-        var result1 = document.getElementById("result1");
-        var result2 = document.getElementById("result2");
-        var result3 = document.getElementById("result3");
-        var count = 0;
-
-        function lock1() {
-          var value1 = input.value.trim();
-          if (value1 === "") {
-            result1.innerHTML = "Please enter a sentence!";
-            result1.style.color = "rgb(75, 0, 130)";
-            result1.style.fontWeight = "bold";
-            return;
-          } else {
-            input.disabled = true;
-            input.style.backgroundColor = "#ccc";
-            result1.innerHTML = "";
-            input.focus();
-            removeButton("button1");
-          }
-        }
-
-        function lock2() {
-          var value2 = number.value.trim();
-          if (value2 === "") {
-            result2.innerHTML = "Please enter a number!";
-            result2.style.color = "rgb(75, 0, 130)";
-            result2.style.fontWeight = "bold";
-            return;
-          } else {
-            number.disabled = true;
-            number.style.backgroundColor = "#ccc";
-            result1.innerHTML = "";
-            result2.innerHTML = "";
-            number.focus();
-            removeButton("button2");
-          }
-        }
-
-        function lock3() {
-          var sentence = input.value.trim();
-          var num = parseInt(number.value.trim());
-          var value3 = box.value.trim();
-          if (value3 === "") {
-            result3.innerHTML = "Please type the sentence!";
-            result3.style.color = "rgb(75, 0, 130)";
-            result3.style.fontSize = "x-large";
-            result3.style.fontWeight = "bold";
-            return;
-          }
-          if (value3 === sentence) {
-            count++;
-            box.value = "";
-            if (count === num) {
-              {
-                if (count === 1) {
-                  result3.innerHTML = "Your punishment is over. You have typed the sentence '" + sentence + "' " + count + " time.";
-                } else {
-                  result3.innerHTML = "Your punishment is over. You have typed the sentence '" + sentence + "' " + count + " times.";
-                }
-              }
-              result3.style.color = "#000";
-              result3.style.fontSize = "x-large";
-              result3.style.fontWeight = "bold";
-              box.style.backgroundColor = "#ccc";
-              removeButton("button3");
-              var p = document.createElement("p");
-              p.innerHTML = sentence;
-              var boxElement = document.getElementById("box");
-              boxElement.placeholder = sentence;
-              box.disabled = true;
-            } else {
-              if (count === 1) {
-                result3.innerHTML = "You have typed the sentence '" + sentence + "' " + count + " time. Keep going!";
-                result3.style.color = "#00f";
-                result3.style.fontSize = "x-large";
-                result3.style.fontWeight = "bold";
-              } else {
-                result3.innerHTML = "You have typed the sentence '" + sentence + "' " + count + " times. Keep going!";
-                result3.style.color = "#00f";
-                result3.style.fontSize = "x-large";
-                result3.style.fontWeight = "bold";
-              }
-            }
-          } else {
-            result3.innerHTML = "Wrong! You have to type the sentence exactly as shown.";
-            result3.style.color = "rgb(75, 0, 130)";
-            result3.style.fontSize = "x-large";
-            result3.style.fontWeight = "bold";
-          }
-        }
-
-        function removeButton(id) {
-          var elem = document.getElementById(id);
-          elem.parentNode.removeChild(elem);
-        }
-        document.getElementById("button1").addEventListener("click", lock1);
-        document.getElementById("button2").addEventListener("click", lock2);
-        document.getElementById("button3").addEventListener("click", lock3);
-        input.addEventListener("keyup", function(event) {
-          if (event.key === 'Enter') {
-            lock1();
-          }
-        });
-        number.addEventListener("keyup", function(event) {
-          if (event.key === 'Enter') {
-            lock2();
-          }
-        });
-        box.addEventListener("keyup", function(event) {
-          if (event.key === 'Enter') {
-            lock3();
-          }
-        });
-      });
-    </script>
   </body>
+
   <style>
     html, body {width: auto!important; overflow-x: hidden!important} 
 
