@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeout / Cornertime Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="This website is a simple corner-time or timeout monitoring tool.">
+    <meta name="keywords" content="timeout, cornertime, corner punishment, corner-time, time-out">
+  </head>
+  <body>
+    <div id="container">
+    <h1 style="color: blue;">Timeout / Cornertime Monitor</h1>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+            margin: 0; /* Remove default margin */
+            background-color: #f0f0f0; /* Optional: Set a background color */
+            font-family: Arial, sans-serif; /* Optional: Choose a font */
+        }
+
+        #video-container {
+            position: relative;
+            width: 800px; /* Increased width for better resolution */
+            height: 600px; /* Increased height for better resolution */
+        }
+
+        #video, #canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        #status {
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div id="video-container">
+            <video id="video" autoplay></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        <p id="status">Waiting for camera access...</p>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        let previousFrame;
+        const threshold = 4; // Locked threshold value
+
+        // Set up audio context for beep sound
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function beep() {
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // 440 Hz
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 5); // Beep for 0.2 seconds
+        }
+
+        function startVideo() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.play();
+                    canvas.width = video.width = 800; // Increased width for better resolution
+                    canvas.height = video.height = 600; // Increased height for better resolution
+                    status.textContent = 'Motion detection active';
+                    detectMotion();
+                })
+                .catch(err => {
+                    status.textContent = 'Error accessing camera: ' + err.message;
+                });
+        }
+
+        function detectMotion() {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            if (previousFrame) {
+                const diffAmount = pixelDiff(currentFrame.data, previousFrame.data);
+                if (diffAmount > threshold) {
+                    beep();
+                    status.textContent = 'Motion detected!';
+                } else {
+                    status.textContent = 'No motion detected';
+                }
+            }
+            previousFrame = currentFrame;
+            requestAnimationFrame(detectMotion);
+        }
+
+        function pixelDiff(arr1, arr2) {
+            let diff = 0;
+            for (let i = 0; i < arr1.length; i += 4) {
+                // Calculate the squared difference for each color channel (red, green, blue)
+                diff += Math.pow(arr1[i] - arr2[i], 2);     // Red channel
+                diff += Math.pow(arr1[i + 1] - arr2[i + 1], 2); // Green channel
+                diff += Math.pow(arr1[i + 2] - arr2[i + 2], 2); // Blue channel
+            }
+            return Math.sqrt(diff / (arr1.length / 4)); // Average squared difference per pixel
+        }
+
+        startVideo();
+    </script>
+    </div>
+</body>
+</html>
+
+    </div>
+    <br>
+    <br>
+    <div id="para">
+      <div style="text-align: center;"> Have you ever had to stand in the corner or face the wall as punishment? <br> This website is a simple timeout or corner-time monitoring tool. <br> It simulates a traditional punishment given to young ones. <br> 
+      </div>
+      <div style="text-align: center;">
+        <br> INSTRUCTIONS <br>
+ <br>You need to make your son or daughter face the wall or the corner and keep the webcam of your device pointing towards him or her.<br>
+      </div>
+      <div style="text-align: left;">Your device will make a beep sound for 5 seconds if he or she moves from his position.
+      </div>
+    </div>
+    <br>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var input = document.getElementById("input");
+        var number = document.getElementById("number");
+        var box = document.getElementById("box");
+        var result1 = document.getElementById("result1");
+        var result2 = document.getElementById("result2");
+        var result3 = document.getElementById("result3");
+        var count = 0;
+
+        function lock1() {
+          var value1 = input.value.trim();
+          if (value1 === "") {
+            result1.innerHTML = "Please enter a sentence!";
+            result1.style.color = "rgb(75, 0, 130)";
+            result1.style.fontWeight = "bold";
+            return;
+          } else {
+            input.disabled = true;
+            input.style.backgroundColor = "#ccc";
+            result1.innerHTML = "";
+            input.focus();
+            removeButton("button1");
+          }
+        }
+
+        function lock2() {
+          var value2 = number.value.trim();
+          if (value2 === "") {
+            result2.innerHTML = "Please enter a number!";
+            result2.style.color = "rgb(75, 0, 130)";
+            result2.style.fontWeight = "bold";
+            return;
+          } else {
+            number.disabled = true;
+            number.style.backgroundColor = "#ccc";
+            result1.innerHTML = "";
+            result2.innerHTML = "";
+            number.focus();
+            removeButton("button2");
+          }
+        }
+
+        function lock3() {
+          var sentence = input.value.trim();
+          var num = parseInt(number.value.trim());
+          var value3 = box.value.trim();
+          if (value3 === "") {
+            result3.innerHTML = "Please type the sentence!";
+            result3.style.color = "rgb(75, 0, 130)";
+            result3.style.fontSize = "x-large";
+            result3.style.fontWeight = "bold";
+            return;
+          }
+          if (value3 === sentence) {
+            count++;
+            box.value = "";
+            if (count === num) {
+              {
+                if (count === 1) {
+                  result3.innerHTML = "Your punishment is over. You have typed the sentence '" + sentence + "' " + count + " time.";
+                } else {
+                  result3.innerHTML = "Your punishment is over. You have typed the sentence '" + sentence + "' " + count + " times.";
+                }
+              }
+              result3.style.color = "#000";
+              result3.style.fontSize = "x-large";
+              result3.style.fontWeight = "bold";
+              box.style.backgroundColor = "#ccc";
+              removeButton("button3");
+              var p = document.createElement("p");
+              p.innerHTML = sentence;
+              var boxElement = document.getElementById("box");
+              boxElement.placeholder = sentence;
+              box.disabled = true;
+            } else {
+              if (count === 1) {
+                result3.innerHTML = "You have typed the sentence '" + sentence + "' " + count + " time. Keep going!";
+                result3.style.color = "#00f";
+                result3.style.fontSize = "x-large";
+                result3.style.fontWeight = "bold";
+              } else {
+                result3.innerHTML = "You have typed the sentence '" + sentence + "' " + count + " times. Keep going!";
+                result3.style.color = "#00f";
+                result3.style.fontSize = "x-large";
+                result3.style.fontWeight = "bold";
+              }
+            }
+          } else {
+            result3.innerHTML = "Wrong! You have to type the sentence exactly as shown.";
+            result3.style.color = "rgb(75, 0, 130)";
+            result3.style.fontSize = "x-large";
+            result3.style.fontWeight = "bold";
+          }
+        }
+
+        function removeButton(id) {
+          var elem = document.getElementById(id);
+          elem.parentNode.removeChild(elem);
+        }
+        document.getElementById("button1").addEventListener("click", lock1);
+        document.getElementById("button2").addEventListener("click", lock2);
+        document.getElementById("button3").addEventListener("click", lock3);
+        input.addEventListener("keyup", function(event) {
+          if (event.key === 'Enter') {
+            lock1();
+          }
+        });
+        number.addEventListener("keyup", function(event) {
+          if (event.key === 'Enter') {
+            lock2();
+          }
+        });
+        box.addEventListener("keyup", function(event) {
+          if (event.key === 'Enter') {
+            lock3();
+          }
+        });
+      });
+    </script>
+  </body>
+  <style>
+    html, body {width: auto!important; overflow-x: hidden!important} 
+
+body {
+  overflow-y: hidden;
+  background-image: url("images/wood.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%;
+  overflow-wrap: break-word;
+  font-family: Arial, sans-serif;
+  background-color: #4A3321;
+}
+
+h1 {
+  text-align: center;
+  font-family: MedievalSharp;
+  margin-top: 20px;
+  font-size: 50px;
+  color: peachpuff;
+  text-shadow: 3px 3px 2px black;
+}
+
+.header {
+  background-image: url("images/paperbrown.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: #D8B484;
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.dropdown {
+  float: right;
+  position: relative;
+}
+
+button {
+  border-radius:10px;
+  padding:20px 30px;
+  font-size:18px;
+  cursor:pointer;
+  background-color: brown;
+  color: gainsboro;
+  box-shadow:0 0 15px #000;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-between;
+}
+
+button:hover{
+  background-color: darkred;
+}
+
+.dropdown-options {
+  white-space: nowrap;
+  display: none;
+  position: absolute;
+  overflow: auto;
+  background-color:#fff;
+  border-radius:5px;
+  box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.4);
+}
+
+.dropdown:hover .dropdown-options {
+  width: 100%;
+  display: block;
+}
+
+.dropdown-options a {
+  width: auto;
+  text-align: center;
+  display: block;
+  color: #000000;
+  text-decoration: none;
+  padding:20px 40px;
+}
+
+.dropdown-options a:hover {
+  color: #0a0a23;
+  background-color: #ddd;
+  border-radius:5px;
+}
+
+#container {
+  width: 90%;
+  background-image: url("images/paperbrown.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #D8B484;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+#result1 {
+  font-size: large;
+  color: #f00;
+  font-size: x-large;
+}
+
+#result2 {
+  font-size: large;
+  color: #f00;
+  font-size: x-large;
+}
+
+.text {
+  font-weight: bolder;
+  text-align: center;
+  font-size: 30px;
+  color: #000;
+}
+
+#input {
+  width: 100%;
+  height: 70px;
+  font-size: 30px;
+  border: 1px solid #ccc;
+}
+
+#number {
+  width: 100%;
+  height: 70px;
+  font-size: 30px;
+  border: 1px solid #ccc;
+}
+
+#button1 {
+  font-weight: bolder;
+  background-color:brown;
+  box-shadow:0 0 15px #000;
+  width: 100%;
+  height: 50px;
+  font-size: 20px;
+  color: gainsboro;
+  padding-top: 13px;
+}
+
+#button2 {
+  font-weight: bolder;
+  background-color:brown;
+  box-shadow:0 0 15px #000;
+  width: 100%;
+  height: 50px;
+  font-size: 20px;
+  color: gainsboro;
+  padding-top: 13px;
+}
+
+#button3 {
+  font-weight:bolder;
+  background-color:brown;
+  box-shadow:0 0 15px #000;
+  width: 100%;
+  height: 50px;
+  font-size: 20px;
+  color: gainsboro;
+  padding-top: 13px;
+}
+
+#About {
+  text-align: center;
+  text-decoration: none;
+  border-radius:10px;
+  padding:23px 25px;
+  font-size:18px;
+  cursor:pointer;
+  background-color: brown;
+  color: gainsboro;
+  box-shadow:0 0 15px #000;
+}
+
+#Home {
+  text-align: center;
+  text-decoration: none;
+  border-radius:10px;
+  padding:23px 25px;
+  font-size:18px;
+  cursor:pointer;
+  background-color: brown;
+  color: gainsboro;
+  box-shadow:0 0 15px #000;
+}
+
+#Language {
+  text-align: center;
+  text-decoration: none;
+  border-radius:10px;
+  padding:23px 25px;
+  font-size:18px;
+  cursor:pointer;
+  background-color: brown;
+  color: gainsboro;
+  box-shadow:0 0 15px #000;
+}
+
+#box {
+  width: 100%;
+  height: 70px;
+  font-size: 30px;
+  border: 1px solid #ccc;
+}
+
+#result {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #00f;
+}
+
+#para {
+  background-image: url("images/paper.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  overflow-wrap: break-word;
+  color: midnightblue;
+  font-size: x-large;
+  background-color: #E4E3DF;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+@media only screen and (min-width: 150px) and (max-width: 205px) {
+  #About {
+    padding:0px 0px;
+    font-size: 12px;
+  }
+  
+  #Home {
+    padding:0px 0px;
+    font-size: 12px;
+  }
+  
+  #Language {
+    padding:0px 0px;
+    font-size: 12px;
+  }
+
+  #container {
+    transform: scale(0.9);
+    width: 90%;
+    align-self: center;
+  }
+
+  #para {
+    transform: scale(0.9);
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-wrap: break-word;
+    color: midnightblue;
+    font-size: x-large;
+  }
+
+button {
+  padding: 20px 5px;
+}
+  
+  h1 {
+    white-space: nowrap;
+    transform: scale(0.4);
+    margin-right: 90%;
+    font-size: 35px;
+    padding-top: 15px;
+  }
+
+  #text {
+    font-size: 25px;
+    color: #000;
+  }
+
+  #number,
+  #input,
+  #box {
+    font-size: xx-large;
+  }
+
+  body {
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    overflow-wrap: break-word;
+    font-family: Arial, sans-serif;
+  }
+}
+
+@media only screen and (min-width: 205px) and (max-width: 270px) {
+  #About {
+    padding:0px 5px;
+    font-size: 12px;
+  }
+  
+  #Home {
+    padding:0px 5px;
+    font-size: 12px;
+  }
+  
+  #Language {
+    padding:0px 5px;
+    font-size: 12px;
+  }
+
+  #container {
+    width: 90%;
+    align-self: center;
+  }
+
+  #para {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-wrap: break-word;
+    color: midnightblue;
+    font-size: x-large;
+  }
+
+button {
+  padding: 20px 5px;
+}
+  
+  h1 {
+    font-size: 35px;
+    padding-top: 15px;
+    text-align: center;
+  }
+
+  #text {
+    font-size: 25px;
+    color: #000;
+  }
+
+  #number,
+  #input,
+  #box {
+    font-size: xx-large;
+  }
+
+  body {
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    overflow-wrap: break-word;
+    font-family: Arial, sans-serif;
+  }
+}
+
+@media only screen and (min-width: 270px) and (max-width: 300px) {
+
+  #About {
+    padding:0px 10px;
+  }
+  
+  #Home {
+    padding:0px 10px;
+  }
+  
+  #Language {
+    padding:0px 10px;
+  }
+
+
+  #container {
+    width: 90%;
+    align-self: center;
+  }
+
+  #para {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-wrap: break-word;
+    color: midnightblue;
+    font-size: x-large;
+  }
+
+button {
+  padding: 20px 5px;
+}
+  
+  h1 {
+    font-size: 35px;
+    padding-top: 15px;
+    text-align: center;
+  }
+
+  #text {
+    font-size: 25px;
+    color: #000;
+  }
+
+  #number,
+  #input,
+  #box {
+    font-size: xx-large;
+  }
+
+  body {
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    overflow-wrap: break-word;
+    font-family: Arial, sans-serif;
+  }
+}
+
+@media only screen and (min-width: 300px) and (max-width: 389px) {
+  #About {
+    padding:10px 10px;
+  }
+  
+  #Home {
+    padding:10px 10px;
+  }
+  
+  #Language {
+    padding:10px 10px;
+  }
+
+
+  #container {
+    width: 90%;
+    align-self: center;
+  }
+
+  #para {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-wrap: break-word;
+    color: midnightblue;
+    font-size: x-large;
+  }
+
+button {
+  padding: 20px 5px;
+}
+  
+  h1 {
+    font-size: 35px;
+    padding-top: 15px;
+    text-align: center;
+  }
+
+  #text {
+    font-size: 25px;
+    color: #000;
+  }
+
+  #number,
+  #input,
+  #box {
+    font-size: xx-large;
+  }
+
+  body {
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    overflow-wrap: break-word;
+    font-family: Arial, sans-serif;
+  }
+}
+
+@media only screen and (min-width: 389px) and (max-width: 480px) {
+  #container {
+    width: 90%;
+    align-self: center;
+  }
+
+  #About {
+    padding:17px 25px;
+  }
+  
+  #Home {
+    padding:17px 25px;
+  }
+  
+  #Language {
+    padding:23px 25px;
+  }
+
+  #para {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-wrap: break-word;
+    color: midnightblue;
+    font-size: x-large;
+  }
+
+button {
+  padding: 20px 5px;
+}
+  
+  h1 {
+    font-size: 35px;
+    padding-top: 15px;
+    text-align: center;
+  }
+
+  #text {
+    font-size: 25px;
+    color: #000;
+  }
+
+  #number,
+  #input,
+  #box {
+    font-size: xx-large;
+  }
+
+  body {
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    overflow-wrap: break-word;
+    font-family: Arial, sans-serif;
+  }
+}
+
+@media only screen and (min-width: 480px) {
+  html, body {width: auto!important; overflow-x: hidden!important} 
+
+  body {
+    background-image: url("images/wood.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+    overflow-wrap: break-word;
+    font-family: Arial, sans-serif;
+    background-color: #4A3321;
+  }
+  
+  h1 {
+    text-align: center;
+    font-family: MedievalSharp;
+    margin-top: 20px;
+    font-size: 50px;
+    color: peachpuff;
+    text-shadow: 3px 3px 2px black;
+  }
+  
+  .header {
+    background-image: url("images/paperbrown.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #D8B484;
+    padding: 3px;
+    border-radius: 10px;
+  }
+  
+  .dropdown {
+    float: right;
+    position: relative;
+  }
+  
+  button {
+    border-radius:10px;
+    padding:20px 30px;
+    font-size:18px;
+    cursor:pointer;
+    background-color: brown;
+    color: gainsboro;
+    box-shadow:0 0 15px #000;
+  }
+  
+  .menu {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  button:hover{
+    background-color: darkred;
+  }
+  
+  .dropdown-options {
+    display: none;
+    position: absolute;
+    overflow: auto;
+    background-color:#fff;
+    border-radius:5px;
+    box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.4);
+  }
+  
+  .dropdown:hover .dropdown-options {
+    width: 100%;
+    display: block;
+  }
+  
+  .dropdown-options a {
+  width: auto;
+  text-align: center;
+  display: block;
+  color: #000000;
+  text-decoration: none;
+  padding:20px 40px;
+  }
+  
+  .dropdown-options a:hover {
+    color: #0a0a23;
+    background-color: #ddd;
+    border-radius:5px;
+  }
+  
+  #container {
+    width: 90%;
+    background-image: url("images/paperbrown.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: #D8B484;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  #result1 {
+    font-size: large;
+    color: #f00;
+    font-size: x-large;
+  }
+  
+  #result2 {
+    font-size: large;
+    color: #f00;
+    font-size: x-large;
+  }
+  
+  .text {
+    font-weight: bolder;
+    text-align: center;
+    font-size: 30px;
+    color: #000;
+  }
+  
+  #input {
+    width: 100%;
+    height: 70px;
+    font-size: 30px;
+    border: 1px solid #ccc;
+  }
+  
+  #number {
+    width: 100%;
+    height: 70px;
+    font-size: 30px;
+    border: 1px solid #ccc;
+  }
+  
+  #button1 {
+    font-weight: bolder;
+    background-color:brown;
+    box-shadow:0 0 15px #000;
+    width: 100%;
+    height: 50px;
+    font-size: 20px;
+    color: gainsboro;
+    padding-top: 13px;
+  }
+  
+  #button2 {
+    font-weight: bolder;
+    background-color:brown;
+    box-shadow:0 0 15px #000;
+    width: 100%;
+    height: 50px;
+    font-size: 20px;
+    color: gainsboro;
+    padding-top: 13px;
+  }
+  
+  #button3 {
+    font-weight:bolder;
+    background-color:brown;
+    box-shadow:0 0 15px #000;
+    width: 100%;
+    height: 50px;
+    font-size: 20px;
+    color: gainsboro;
+    padding-top: 13px;
+  }
+  
+  #About {
+    text-align: center;
+    text-decoration: none;
+    border-radius:10px;
+    padding:23px 25px;
+    font-size:18px;
+    cursor:pointer;
+    background-color: brown;
+    color: gainsboro;
+    box-shadow:0 0 15px #000;
+  }
+  
+  #Home {
+    text-align: center;
+    text-decoration: none;
+    border-radius:10px;
+    padding:23px 25px;
+    font-size:18px;
+    cursor:pointer;
+    background-color: brown;
+    color: gainsboro;
+    box-shadow:0 0 15px #000;
+  }
+  
+  #Language {
+    text-align: center;
+    text-decoration: none;
+    border-radius:10px;
+    padding:23px 25px;
+    font-size:18px;
+    cursor:pointer;
+    background-color: brown;
+    color: gainsboro;
+    box-shadow:0 0 15px #000;
+  }
+  
+  #box {
+    width: 100%;
+    height: 70px;
+    font-size: 30px;
+    border: 1px solid #ccc;
+  }
+  
+  #result {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #00f;
+  }
+  
+  #para {
+    background-image: url("images/paper.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    overflow-wrap: break-word;
+    color: midnightblue;
+    font-size: x-large;
+    background-color: #E4E3DF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+}
+  </style>
+</html>
