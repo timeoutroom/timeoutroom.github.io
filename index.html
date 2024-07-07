@@ -15,7 +15,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
     <meta name="description" content="This website is a simple corner-time or timeout monitoring tool.">
-    <meta name="keywords" content="timeout, cornertime, corner punishment, corner-time, time-out">
+    <meta name="keywords" content="timeout, cornertime, corner-time, time-out, corner punishment">
   </head>
   <body>
     <div id="container">
@@ -93,21 +93,51 @@
                 });
         }
 
-        function detectMotion() {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            if (previousFrame) {
-                const diffAmount = pixelDiff(currentFrame.data, previousFrame.data);
-                if (diffAmount > threshold) {
-                    beep();
-                    status.textContent = 'Motion detected!';
-                } else {
-                    status.textContent = 'No motion detected';
-                }
+        let motionDetected = false;
+let motionTimeout;
+
+function detectMotion() {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    
+    if (previousFrame) {
+        const diffAmount = pixelDiff(currentFrame.data, previousFrame.data);
+        
+        if (diffAmount > threshold) {
+            if (!motionDetected) {
+                // Motion detected after a period of no motion
+                clearTimeout(motionTimeout); // Clear any existing timeout
+                motionDetected = true;
+                beep(); // Optional: Play a sound or trigger any other action
+                status.textContent = 'Motion detected!';
+                status.style.fontSize = '24px'; // Increase font size
+                status.style.fontWeight = 'bold'; // Make text bold
             }
-            previousFrame = currentFrame;
-            requestAnimationFrame(detectMotion);
+            
+            // Set a timeout to reset motionDetected after 3 seconds
+            motionTimeout = setTimeout(function() {
+                motionDetected = false;
+                status.textContent = 'No motion detected';  status.style.fontSize = '24px'; // Increase font size
+                status.style.fontWeight = 'bold'; // Make text bold
+            }, 3000);
+        } else {
+            // If no motion detected, reset the timeout
+            clearTimeout(motionTimeout);
+            
+            // If motion was detected before, reset status after 3 seconds
+            if (motionDetected) {
+                motionTimeout = setTimeout(function() {
+                    motionDetected = false;
+                    status.textContent = 'No motion detected';
+                }, 3000);
+            }
         }
+    }
+    
+    previousFrame = currentFrame;
+    requestAnimationFrame(detectMotion);
+}
+
 
         function pixelDiff(arr1, arr2) {
             let diff = 0;
@@ -1030,5 +1060,4 @@ button {
   }
 }
   </style>
-  
 </html>
