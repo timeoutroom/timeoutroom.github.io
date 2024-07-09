@@ -75,14 +75,22 @@
         // Set up audio context for beep sound
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        function beep() {
-            const oscillator = audioContext.createOscillator();
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // 440 Hz
-            oscillator.connect(audioContext.destination);
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 3); // Beep for 3 seconds
-        }
+function beep() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // 440 Hz
+    
+    // Set the volume (0 to 1, where 1 is full volume)
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Adjust this value to change volume
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 3); // Beep for 3 seconds
+}
 
         function startVideo() {
             navigator.mediaDevices.getUserMedia({ video: true })
