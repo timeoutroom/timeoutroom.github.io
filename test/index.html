@@ -3,951 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image + Audio to Video Converter</title>
+    <title>Image + Audio to Video Creator</title>
     <style>
-        :root {
-            --primary-color: #4a6bff;
-            --secondary-color: #5d3fd3;
-            --accent-color: #ff6b6b;
-            --dark-color: #2c3e50;
-            --light-color: #f8f9fa;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         body {
-            background-color: #f5f7fa;
-            color: var(--dark-color);
+            font-family: sans-serif;
             line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
         }
-        
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        header {
+        h1, h2 {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px 0;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            color: #5a5a5a;
         }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-        
-        .app-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        @media (max-width: 768px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .panel {
-            background-color: white;
-            padding:.25rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-        }
-        
-        .panel-header {
-            padding: 15px;
-            background-color: var(--primary-color);
-            color: white;
-            border-top-left-radius: var(--border-radius);
-            border-top-right-radius: var(--border-radius);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .panel-body {
+        .file-upload-area {
+            border: 2px dashed #ccc;
             padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+            border-radius: 5px;
         }
-        
-        .panel-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+        .file-upload-area label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
-        
-        .toolbar {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+        .file-upload-area input[type="file"] {
+            display: block;
+            margin: 10px auto;
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        
+        #imageList, #audioName {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+        }
+        .options {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .options label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .options input[type="number"], .options input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 15px;
+            width: 80px;
+        }
+         .options select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
         button {
-            padding: 10px 20px;
-            background-color: var(--primary-color);
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            font-weight: 500;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
         }
-        
-        button:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
         }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
-            transform: none;
         }
-        
-        button.accent {
-            background-color: var(--accent-color);
-        }
-        
-        button.accent:hover {
-            background-color: #ff5252;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        input[type="file"], 
-        input[type="text"], 
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            background-color: #f9f9f9;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="file"]:hover, 
-        input[type="text"]:hover, 
-        input[type="number"]:hover,
-        select:hover {
-            border-color: var(--primary-color);
-        }
-        
-        input[type="file"]:focus, 
-        input[type="text"]:focus, 
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 2px rgba(93, 63, 211, 0.2);
-        }
-        
-        .file-input-container {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .file-input-container input[type="file"] {
-            position: absolute;
-            font-size: 100px;
-            opacity: 0;
-            right: 0;
-            top: 0;
-        }
-        
-        .file-input-label {
-            display: inline-block;
-            padding: 12px 15px;
-            background-color: #f0f2f5;
-            color: var(--dark-color);
-            border: 1px dashed #ccc;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            width: 100%;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        
-        .file-input-label:hover {
-            background-color: #e6e9ed;
-            border-color: var(--primary-color);
-        }
-        
-        .file-input-label i {
-            margin-right: 8px;
-        }
-        
-        .file-list {
-            margin-top: 15px;
-            border: 1px solid #eee;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .file-item {
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            background-color: #f9f9f9;
-        }
-        
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        
-        .file-item:nth-child(odd) {
-            background-color: #f0f2f5;
-        }
-        
-        .file-name {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-right: 10px;
-        }
-        
-        .file-size {
-            font-size: 0.85rem;
-            color: #666;
-            margin-right: 10px;
-            white-space: nowrap;
-        }
-        
-        .file-actions {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.85rem;
-        }
-        
-        .remove-file {
-            color: var(--accent-color);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            transition: color 0.3s;
-        }
-        
-        .remove-file:hover {
-            color: #ff5252;
-        }
-        
-        .preview-container {
+        #status, #progress {
             margin-top: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-        }
-        
-        .preview-item {
-            position: relative;
-            height: 150px;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
-        }
-        
-        .preview-item:hover img {
-            transform: scale(1.05);
-        }
-        
-        .preview-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .preview-item:hover .preview-overlay {
-            opacity: 1;
-        }
-        
-        .audio-preview {
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        .progress-container {
-            margin-top: 20px;
-            background-color: #f0f2f5;
-            border-radius: 20px;
-            height: 10px;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            width: 0;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            transition: width 0.3s;
-            border-radius: 20px;
-        }
-        
-        .progress-text {
-            text-align: center;
-            margin-top: 5px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .status {
-            margin-top: 10px;
             padding: 10px;
-            border-radius: var(--border-radius);
-            background-color: #f0f2f5;
-            display: none;
+            border: 1px solid #eee;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
         }
-        
-        .status.success {
-            display: block;
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status.error {
-            display: block;
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .status.warning {
-            display: block;
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-        }
-        
-        .status.info {
-            display: block;
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        
-        .output-container {
-            margin-top: 20px;
-        }
-        
-        .output-video {
+         #progressBarContainer {
             width: 100%;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden; /* Ensures the inner bar stays within bounds */
+            height: 20px; /* Give the progress bar some height */
         }
-        
-        .output-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
+
+        #progressBar {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 20px; /* Vertically center text if needed */
+            color: white;
+            transition: width 0.4s ease; /* Smooth transition for width changes */
+            border-radius: 5px; /* Match container radius */
         }
-        
-        .log-container {
+        #logOutput {
             margin-top: 20px;
+            background-color: #222;
+            color: #eee;
             padding: 15px;
-            background-color: #f0f2f5;
-            border-radius: var(--border-radius);
+            border-radius: 5px;
             max-height: 300px;
-            overflow-y: auto;
+            overflow-y: scroll;
             font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
-        
-        .log-entry {
-            margin-bottom: 5px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-        
-        .log-entry:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-        
-        .log-time {
-            color: #666;
-            font-size: 0.85rem;
-            margin-right: 10px;
-        }
-        
-        .log-level-info {
-            color: var(--primary-color);
-        }
-        
-        .log-level-warning {
-            color: #ffc107;
-        }
-        
-        .log-level-error {
-            color: var(--accent-color);
-        }
-        
-        .settings-panel {
-            border-top: 1px solid #eee;
+        #downloadLink {
+            display: none; /* Hidden initially */
             margin-top: 20px;
-            padding-top: 20px;
-        }
-        
-        .settings-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        @media (max-width: 576px) {
-            .settings-row {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .tab.active {
-            border-bottom-color: var(--primary-color);
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .dropzone {
-            border: 2px dashed #ccc;
-            border-radius: var(--border-radius);
-            padding: 40px 20px;
+            padding: 10px;
             text-align: center;
-            background-color: #f9f9f9;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .dropzone:hover, .dropzone.dragover {
-            border-color: var(--primary-color);
-            background-color: rgba(74, 107, 255, 0.05);
-        }
-        
-        .dropzone-icon {
-            font-size: 2rem;
-            color: #ccc;
-            margin-bottom: 10px;
-        }
-        
-        .dropzone:hover .dropzone-icon, .dropzone.dragover .dropzone-icon {
-            color: var(--primary-color);
-        }
-        
-        .sort-handle {
-            cursor: grab;
-            margin-right: 10px;
-        }
-        
-        .dragging {
-            opacity: 0.5;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            width: 90%;
-            max-width: 600px;
-            overflow: hidden;
-            animation: modal-appear 0.3s ease-out;
-        }
-        
-        @keyframes modal-appear {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .modal-header {
-            background-color: var(--primary-color);
+            background-color: #28a745;
             color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
         }
-        
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+        #downloadLink:hover {
+            background-color: #218838;
         }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        
-        .modal-close:hover {
-            color: #f8f9fa;
-        }
-        
-        .modal-body {
-            padding: 20px;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        
-        .modal-footer {
-            padding: 15px 20px;
-            background-color: #f9f9f9;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-        
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-        
-        .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .tooltip .tooltip-text::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #333 transparent transparent transparent;
-        }
-        
-        .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        footer {
-            margin-top: 50px;
-            padding: 20px 0;
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
-            border-top: 1px solid #eee;
-        }
-        
-        .timeline-container {
-            margin-top: 20px;
-            position: relative;
-            height: 150px;
-            background-color: #f0f2f5;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-        }
-        
-        .timeline {
-            height: 100%;
-            display: flex;
-            overflow-x: auto;
-            position: relative;
-        }
-        
-        .timeline-item {
-            min-width: 100px;
-            height: 100%;
-            position: relative;
-            background-size: cover;
-            background-position: center;
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .timeline-item-label {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 5px;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-size: 0.85rem;
-            text-align: center;
-        }
-        
-        .timeline-audio-wave {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background-color: rgba(0, 0, 0, 0.3);
-        }
-        
-        .timeline-cursor {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: var(--accent-color);
-            z-index: 10;
-            left: 0;
-        }
-        
-        .waveform-container {
-            height: 100px;
-            width: 100%;
-            margin-top: 20px;
-            background-color: #f0f2f5;
-            border-radius: var(--border-radius);
-            overflow: hidden;
+        .hidden {
+             display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Image + Audio to Video Converter</h1>
-            <p class="subtitle">Combine images and audio to create custom videos</p>
-        </header>
-        
-        <div class="app-container">
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 class="panel-title">Input Files</h2>
-                    <div class="toolbar">
-                        <button id="clear-all-btn" class="accent">Clear All</button>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="tabs">
-                        <div class="tab active" data-tab="images">Images</div>
-                        <div class="tab" data-tab="audio">Audio</div>
-                        <div class="tab" data-tab="settings">Settings</div>
-                    </div>
-                    
-                    <div class="tab-content active" id="images-tab">
-                        <div class="dropzone" id="image-dropzone">
-                            <div class="dropzone-icon">📷</div>
-                            <p>Drag and drop image files here, or click to browse</p>
-                            <p class="subtitle">Supported formats: JPG, PNG, GIF, BMP, WEBP</p>
-                            <input type="file" id="image-file-input" multiple accept="image/*" style="display: none;">
-                        </div>
-                        
-                        <div class="file-list" id="image-file-list">
-                            <!-- Image files will be listed here -->
-                        </div>
-                        
-                        <div class="preview-container" id="image-preview-container">
-                            <!-- Image previews will be shown here -->
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="audio-tab">
-                        <div class="dropzone" id="audio-dropzone">
-                            <div class="dropzone-icon">🎵</div>
-                            <p>Drag and drop audio files here, or click to browse</p>
-                            <p class="subtitle">Supported formats: MP3, WAV, OGG, M4A</p>
-                            <input type="file" id="audio-file-input" accept="audio/*" style="display: none;">
-                        </div>
-                        
-                        <div class="file-list" id="audio-file-list">
-                            <!-- Audio files will be listed here -->
-                        </div>
-                        
-                        <div class="audio-preview" id="audio-preview-container">
-                            <!-- Audio preview will be shown here -->
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="settings-tab">
-                        <div class="settings-panel">
-                            <h3>Video Settings</h3>
-                            <div class="settings-row">
-                                <div class="form-group">
-                                    <label for="output-width">Width (px)</label>
-                                    <input type="number" id="output-width" value="1280" min="320" max="3840">
-                                </div>
-                                <div class="form-group">
-                                    <label for="output-height">Height (px)</label>
-                                    <input type="number" id="output-height" value="720" min="240" max="2160">
-                                </div>
-                            </div>
-                            
-                            <div class="settings-row">
-                                <div class="form-group">
-                                    <label for="frame-rate">Frame Rate (FPS)</label>
-                                    <input type="number" id="frame-rate" value="30" min="15" max="60">
-                                </div>
-                                <div class="form-group">
-                                    <label for="image-duration">Image Duration (seconds)</label>
-                                    <input type="number" id="image-duration" value="5" min="1" max="30" step="0.1">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="transition-type">Transition Type</label>
-                                <select id="transition-type">
-                                    <option value="none">None</option>
-                                    <option value="fade" selected>Fade</option>
-                                    <option value="slide">Slide</option>
-                                    <option value="zoom">Zoom</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="transition-duration">Transition Duration (seconds)</label>
-                                <input type="number" id="transition-duration" value="1" min="0.1" max="5" step="0.1">
-                            </div>
-                            
-                            <h3>Output Settings</h3>
-                            <div class="form-group">
-                                <label for="output-format">Output Format</label>
-                                <select id="output-format">
-                                    <option value="mp4" selected>MP4</option>
-                                    <option value="webm">WebM</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="output-quality">Quality</label>
-                                <select id="output-quality">
-                                    <option value="low">Low</option>
-                                    <option value="medium" selected>Medium</option>
-                                    <option value="high">High</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="output-filename">Output Filename</label>
-                                <input type="text" id="output-filename" value="my_video">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 class="panel-title">Preview & Output</h2>
-                    <div class="toolbar">
-                        <button id="create-video-btn" disabled>Create Video</button>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="status" id="status-message"></div>
-                    
-                    <div class="timeline-container">
-                        <div class="timeline" id="timeline">
-                            <!-- Timeline items will be generated here -->
-                        </div>
-                        <div class="timeline-cursor" id="timeline-cursor"></div>
-                    </div>
-                    
-                    <div class="waveform-container" id="waveform-container">
-                        <!-- Audio waveform will be displayed here -->
-                    </div>
-                    
-                    <div class="progress-container" id="progress-container" style="display: none;">
-                        <div class="progress-bar" id="progress-bar"></div>
-                        <div class="progress-text" id="progress-text">0%</div>
-                    </div>
-                    
-                    <div class="output-container" id="output-container" style="display: none;">
-                        <video id="output-video" class="output-video" controls></video>
-                        <div class="output-actions">
-                            <button id="download-btn">Download Video</button>
-                            <button id="share-btn">Share</button>
-                        </div>
-                    </div>
-                    
-                    <div class="log-container" id="log-container">
-                        <div class="log-entry">
-                            <span class="log-time">[00:00:00]</span>
-                            <span class="log-level-info">Ready to create video. Add images and audio to get started.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <h1>Image + Audio to Video Creator</h1>
+
+        <div class="file-upload-area">
+            <label for="imageFiles">Select Image Files (in order):</label>
+            <input type="file" id="imageFiles" accept="image/*" multiple>
+            <div id="imageList">No images selected.</div>
         </div>
-    </div>
-    
-    <div class="modal" id="share-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Share Your Video</h3>
-                <button class="modal-close" id="share-modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="share-link">Direct Link</label>
-                    <input type="text" id="share-link" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Share on Social Media</label>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="btn-sm" id="share-twitter">Twitter</button>
-                        <button class="btn-sm" id="share-facebook">Facebook</button>
-                        <button class="btn-sm" id="share-linkedin">LinkedIn</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="embed-code">Embed Code</label>
-                    <textarea id="embed-code" rows="4" readonly style="width: 100%; padding: 10px;"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="copy-link-btn">Copy Link</button>
-                <button id="share-modal-cancel">Close</button>
-            </div>
+
+        <div class="file-upload-area">
+            <label for="audioFile">Select Audio File:</label>
+            <input type="file" id="audioFile" accept="audio/*">
+            <div id="audioName">No audio file selected.</div>
         </div>
-    </div>
-    
-    <div class="modal" id="processing-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Processing Video</h3>
-            </div>
-            <div class="modal-body" style="text-align: center;">
-                <div style="margin: 20px 0;">
-                    <div class="loading-spinner" style="width: 50px; height: 50px; border-width: 5px;"></div>
-                </div>
-                <p>Please wait while your video is being created...</p>
-                <div class="progress-container" style="margin-top: 20px;">
-                    <div class="progress-bar" id="modal-progress-bar"></div>
-                    <div class="progress-text" id="modal-progress-text">0%</div>
-                </div>
-                <p id="processing-status">Initializing FFmpeg...</p>
-            </div>
+
+        <div class="options">
+             <h2>Video Options</h2>
+             <label for="frameRate">Image Duration (seconds):</label>
+             <input type="number" id="imageDuration" value="3" min="0.1" step="0.1">
+
+             <label for="outputFormat">Output Format:</label>
+             <select id="outputFormat">
+                 <option value="mp4" selected>MP4</option>
+                 <option value="webm">WEBM</option>
+                 <option value="mov">MOV</option>
+                 <option value="gif">GIF (No Audio)</option>
+             </select>
+             <br><br>
+             <small>Note: Processing takes time, especially for many images or long audio. Your browser might become unresponsive.</small>
         </div>
+
+        <button id="createVideoButton" disabled>Load FFmpeg & Create Video</button>
+
+        <div id="status">Status: Idle</div>
+        <div id="progress" class="hidden">
+             Progress: 0%
+             <div id="progressBarContainer">
+                 <div id="progressBar"></div>
+             </div>
+        </div>
+        <div id="logOutput">Logs will appear here...</div>
+        <a id="downloadLink" href="#" download="output.mp4">Download Video</a>
+
     </div>
-    
-    <footer>
-        <p>© 2025 Image + Audio to Video Converter | Built with HTML, CSS, JavaScript, and FFmpeg</p>
-    </footer>
+
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js" integrity="sha512-qgGXRDRqu+2aR/OBtmWzHhVfkf/b4Rk6bCGAkGdVpt1F1EWt7rC/4x2wV0U0kO5pL4F371b/J7B4cSmT5Qo4zg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const { FFmpeg } = FFmpegWASM;
+        let ffmpeg = null;
+
+        const imageFilesInput = document.getElementById('imageFiles');
+        const audioFileInput = document.getElementById('audioFile');
+        const imageListDiv = document.getElementById('imageList');
+        const audioNameDiv = document.getElementById('audioName');
+        const createVideoButton = document.getElementById('createVideoButton');
+        const statusDiv = document.getElementById('status');
+        const progressDiv = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+        const logOutputDiv = document.getElementById('logOutput');
+        const downloadLink = document.getElementById('downloadLink');
+        const imageDurationInput = document.getElementById('imageDuration');
+        const outputFormatSelect = document.getElementById('outputFormat');
+
+        let uploadedImages = [];
+        let uploadedAudio = null;
+
+        // --- Core FFmpeg Functions ---
+
+        const getFFmpeg = async () => {
+            if (ffmpeg) {
+                return ffmpeg;
+            }
+            statusDiv.textContent = 'Status: Loading FFmpeg...';
+            logOutputDiv.innerHTML = 'Loading FFmpeg core...\n';
+            ffmpeg = new FFmpeg();
+
+            ffmpeg.on('log', ({ message }) => {
+                logOutputDiv.innerHTML += message + '\n';
+                logOutputDiv.scrollTop = logOutputDiv.scrollHeight; // Auto-scroll
+            });
+
+            ffmpeg.on('progress', ({ progress, time }) => {
+                const progressPercent = Math.round(progress * 100);
+                progressDiv.classList.remove('hidden');
+                progressDiv.firstChild.textContent = `Progress: ${progressPercent}%`;
+                progressBar.style.width = `${progressPercent}%`;
+                if (time) {
+                    // Time is in microseconds
+                    const seconds = (time / 1000000).toFixed(2);
+                     progressDiv.firstChild.textContent += ` (Processed ${seconds}s)`;
+                }
+                 console.log('Progress:', { progress, time });
+            });
+
+            try {
+                 // URLs for the core and worker scripts from unpkg CDN
+                const coreURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.js";
+                // Single-threaded version doesn't strictly need workerURL, but providing it doesn't hurt.
+                // For multi-threaded (@ffmpeg/core-mt), workerURL is essential.
+                 // const wasmURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.wasm";
+                 // const workerURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.worker.js";
+
+                await ffmpeg.load({ coreURL }); // Pass CDN URLs
+                statusDiv.textContent = 'Status: FFmpeg Loaded. Ready to process.';
+                logOutputDiv.innerHTML += 'FFmpeg core loaded successfully.\n';
+                createVideoButton.disabled = false; // Enable button after loading
+                createVideoButton.textContent = 'Create Video';
+            } catch (error) {
+                statusDiv.textContent = 'Status: Error loading FFmpeg.';
+                logOutputDiv.innerHTML += `Error loading FFmpeg: ${error}\n`;
+                console.error("FFmpeg load error:", error);
+                 createVideoButton.disabled = true;
+                 createVideoButton.textContent = 'Error Loading FFmpeg';
+            }
+            return ffmpeg;
+        };
+
+        // Initialize FFmpeg on page load but don't block UI
+        getFFmpeg();
+
+        // --- Utility Functions ---
+        const readFileAsArrayBuffer = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(new Uint8Array(reader.result));
+                reader.onerror = (error) => reject(error);
+                reader.readAsArrayBuffer(file);
+            });
+        };
+
+        // --- Event Listeners ---
+
+        imageFilesInput.addEventListener('change', (event) => {
+            uploadedImages = Array.from(event.target.files);
+             // Sort files by name to ensure order, assuming names like image01.jpg, image02.jpg etc.
+            // A more robust solution might require user confirmation of order or a different UI.
+            uploadedImages.sort((a, b) => a.name.localeCompare(b.name));
+            if (uploadedImages.length > 0) {
+                imageListDiv.textContent = `${uploadedImages.length} image(s) selected: ${uploadedImages.map(f => f.name).join(', ')}`;
+            } else {
+                imageListDiv.textContent = 'No images selected.';
+            }
+             checkEnableButton();
+        });
+
+        audioFileInput.addEventListener('change', (event) => {
+            uploadedAudio = event.target.files[0];
+            if (uploadedAudio) {
+                audioNameDiv.textContent = `Audio selected: ${uploadedAudio.name}`;
+            } else {
+                audioNameDiv.textContent = 'No audio file selected.';
+            }
+            checkEnableButton();
+        });
+
+         function checkEnableButton() {
+            // Enable the main button only if ffmpeg is loaded AND files are selected
+             if (ffmpeg && ffmpeg.loaded && uploadedImages.length > 0 && (uploadedAudio || outputFormatSelect.value === 'gif')) {
+                createVideoButton.disabled = false;
+                 createVideoButton.textContent = 'Create Video';
+            } else if (ffmpeg && !ffmpeg.loaded) {
+                createVideoButton.disabled = true; // Keep disabled if ffmpeg isn't loaded yet
+                 createVideoButton.textContent = 'Load FFmpeg & Create Video';
+            } else {
+                 createVideoButton.disabled = true;
+                 createVideoButton.textContent = 'Select Files First';
+            }
+        }
+
+
+        createVideoButton.addEventListener('click', async () => {
+             if (!ffmpeg || !ffmpeg.loaded) {
+                statusDiv.textContent = 'Status: FFmpeg not loaded yet.';
+                return;
+            }
+             if (uploadedImages.length === 0) {
+                statusDiv.textContent = 'Status: Please select image files.';
+                return;
+            }
+             const outputFormat = outputFormatSelect.value;
+             if (!uploadedAudio && outputFormat !== 'gif') {
+                statusDiv.textContent = 'Status: Please select an audio file (or choose GIF format).';
+                return;
+            }
+
+            createVideoButton.disabled = true;
+            statusDiv.textContent = 'Status: Processing... Writing files to virtual memory.';
+            logOutputDiv.innerHTML = 'Starting video creation...\n';
+             progressDiv.classList.add('hidden'); // Reset progress bar display
+             progressBar.style.width = '0%';
+             downloadLink.style.display = 'none'; // Hide previous download link
+
+            try {
+                // 1. Write files to FFmpeg's virtual file system
+                logOutputDiv.innerHTML += 'Writing image files...\n';
+                for (let i = 0; i < uploadedImages.length; i++) {
+                    const file = uploadedImages[i];
+                    const data = await readFileAsArrayBuffer(file);
+                    // Pad index for consistent naming (e.g., img001.png)
+                     const paddedIndex = String(i + 1).padStart(3, '0');
+                     const extension = file.name.split('.').pop() || 'png'; // Use original extension or default to png
+                     const inputFilename = `img${paddedIndex}.${extension}`;
+                    await ffmpeg.writeFile(inputFilename, data);
+                    logOutputDiv.innerHTML += `Written: ${inputFilename}\n`;
+                }
+
+                 const audioInputFilename = 'input_audio'; // Base name, ffmpeg detects format
+                 let audioExtension = '';
+                 if (uploadedAudio) {
+                    logOutputDiv.innerHTML += 'Writing audio file...\n';
+                    const audioData = await readFileAsArrayBuffer(uploadedAudio);
+                     audioExtension = uploadedAudio.name.split('.').pop() || 'mp3';
+                    await ffmpeg.writeFile(`${audioInputFilename}.${audioExtension}`, audioData);
+                    logOutputDiv.innerHTML += `Written: ${audioInputFilename}.${audioExtension}\n`;
+                }
+
+                statusDiv.textContent = 'Status: Running FFmpeg command...';
+                logOutputDiv.innerHTML += 'Executing FFmpeg command...\n';
+
+                // 2. Construct and Run FFmpeg Command
+                const imageDuration = parseFloat(imageDurationInput.value) || 3;
+                if (imageDuration <= 0) {
+                     throw new Error("Image duration must be positive.");
+                }
+                const frameRate = 1 / imageDuration; // Calculate framerate based on duration
+
+                const outputFilename = `output.${outputFormat}`;
+                const args = [
+                    '-framerate', `${frameRate}`, // Input framerate based on desired duration per image
+                     '-i', 'img%03d.png', // Input image sequence pattern (assumes png, adjust if needed or analyze first image)
+                ];
+
+                 // Add audio input if present and format is not GIF
+                 if (uploadedAudio && outputFormat !== 'gif') {
+                    args.push('-i', `${audioInputFilename}.${audioExtension}`);
+                }
+
+                 // Add common output options
+                if (outputFormat === 'mp4') {
+                    args.push(
+                        '-c:v', 'libx264',     // Video codec
+                        '-preset', 'medium', // Encoding speed/quality trade-off
+                        '-tune', 'stillimage', // Optimize for still images
+                         '-crf', '23', // Constant Rate Factor (lower is higher quality, 18-28 is common)
+                        '-pix_fmt', 'yuv420p'  // Pixel format for compatibility
+                     );
+                 } else if (outputFormat === 'webm') {
+                     args.push(
+                         '-c:v', 'libvpx-vp9', // VP9 codec for WebM
+                         '-crf', '30',         // CRF for VP9 (adjust as needed)
+                         '-b:v', '0',          // Needed for CRF mode with VP9
+                         '-pix_fmt', 'yuv420p'
+                     );
+                 } else if (outputFormat === 'mov') {
+                     args.push(
+                         '-c:v', 'libx264',     // Use x264 for MOV as well (widely compatible)
+                         '-preset', 'medium',
+                         '-tune', 'stillimage',
+                         '-crf', '23',
+                         '-pix_fmt', 'yuv420p'
+                     );
+                 } else if (outputFormat === 'gif') {
+                     // GIF specific settings - high quality often needs palette generation
+                     args.push(
+                         // Optional: Palette generation for better quality GIF
+                         // This would require a two-pass approach which is more complex
+                         // Simple direct conversion:
+                          '-vf', 'fps=10,scale=320:-1:flags=lanczos', // Example filter: 10fps, 320px wide, lanczos scaling
+                         '-loop', '0' // 0 for infinite loop, -1 for no loop, N for N+1 loops
+                     );
+                 }
+
+
+                 // Add audio codec options if audio is used
+                if (uploadedAudio && outputFormat !== 'gif') {
+                    args.push(
+                        '-c:a', 'aac',         // Audio codec (AAC is common)
+                        '-b:a', '192k'       // Audio bitrate
+                    );
+                 } else if (outputFormat !== 'gif') {
+                     // If no audio file provided but format supports audio, add silent audio
+                     // This prevents issues with players expecting an audio track.
+                      args.push('-f', 'lavfi', '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100');
+                      args.push('-c:a', 'aac', '-b:a', '128k'); // Add silent audio track
+                 }
+
+                 // Use -shortest if audio is present to end video with audio
+                 if (uploadedAudio && outputFormat !== 'gif') {
+                     args.push('-shortest');
+                 } else if (outputFormat !== 'gif') {
+                     // If we added silent audio, we need to define its duration,
+                     // which should match the total image duration.
+                     const totalVideoDuration = uploadedImages.length * imageDuration;
+                     args.push('-t', `${totalVideoDuration}`);
+                 }
+
+
+                args.push(outputFilename); // Output file
+
+                logOutputDiv.innerHTML += `\nRunning: ffmpeg ${args.join(' ')}\n\n`;
+                progressDiv.classList.remove('hidden'); // Show progress bar
+
+                 // Execute the command
+                await ffmpeg.exec(args);
+
+                statusDiv.textContent = 'Status: Processing complete. Reading output file.';
+                logOutputDiv.innerHTML += '\nFFmpeg command finished.\nReading output file...\n';
+
+                // 3. Read the output file
+                const outputData = await ffmpeg.readFile(outputFilename);
+
+                // 4. Create download link
+                const videoBlob = new Blob([outputData.buffer], { type: `video/${outputFormat === 'webm' ? 'webm' : outputFormat}` }); // Adjust MIME type if necessary
+                const videoUrl = URL.createObjectURL(videoBlob);
+                downloadLink.href = videoUrl;
+                downloadLink.download = `video_output.${outputFormat}`;
+                downloadLink.style.display = 'block'; // Show the download link
+
+                statusDiv.textContent = 'Status: Video created successfully! Click link to download.';
+                logOutputDiv.innerHTML += `Output file "${outputFilename}" created.\n`;
+
+                 // Cleanup virtual files (optional, ffmpeg instance might clear on reload/new load)
+                 try {
+                     logOutputDiv.innerHTML += 'Cleaning up virtual files...\n';
+                     for (let i = 0; i < uploadedImages.length; i++) {
+                         const paddedIndex = String(i + 1).padStart(3, '0');
+                         const extension = uploadedImages[i].name.split('.').pop() || 'png';
+                         await ffmpeg.deleteFile(`img${paddedIndex}.${extension}`);
+                     }
+                     if (uploadedAudio) {
+                          await ffmpeg.deleteFile(`${audioInputFilename}.${audioExtension}`);
+                     }
+                     await ffmpeg.deleteFile(outputFilename);
+                      logOutputDiv.innerHTML += 'Cleanup complete.\n';
+                 } catch (cleanupError) {
+                     logOutputDiv.innerHTML += `Warning: Error during cleanup: ${cleanupError}\n`;
+                 }
+
+
+            } catch (error) {
+                statusDiv.textContent = 'Status: Error during processing.';
+                logOutputDiv.innerHTML += `\n--- ERROR ---\n${error}\n-------------\n`;
+                console.error('FFmpeg processing error:', error);
+            } finally {
+                 // Re-enable button if ffmpeg is still loaded, regardless of success/failure
+                 if (ffmpeg && ffmpeg.loaded) {
+                     createVideoButton.disabled = false;
+                     createVideoButton.textContent = 'Create Video';
+                 } else {
+                     createVideoButton.disabled = true; // Keep disabled if ffmpeg load failed earlier
+                 }
+                // Ensure progress bar is hidden if process finished quickly or failed early
+                 // if (progressBar.style.width !== '100%') {
+                 //    progressDiv.classList.add('hidden');
+                 // }
+            }
+        });
+
+    </script>
+</body>
+</html>
