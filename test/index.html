@@ -7,513 +7,410 @@
     <style>
         body {
             font-family: sans-serif;
-            line-height: 1.6;
             padding: 20px;
             background-color: #f4f4f4;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .container {
-            max-width: 800px;
-            margin: auto;
-            background: #fff;
+            background-color: #fff;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 800px;
+            margin-bottom: 20px;
         }
         h1, h2 {
             text-align: center;
             color: #5a5a5a;
         }
-        .file-upload-area {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            background-color: #fafafa;
-            border-radius: 5px;
-        }
-        .file-upload-area label {
+        label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: bold;
         }
-        .file-upload-area input[type="file"] {
-            display: block;
-            margin: 10px auto;
-            padding: 8px 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #imageList, #audioName {
-            margin-top: 10px;
-            font-style: italic;
-            color: #666;
-        }
-        .options {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #eee;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .options label {
-            display: inline-block;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        .options input[type="number"], .options input[type="text"] {
-            padding: 8px;
+        input[type="file"], input[type="number"], button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            margin-right: 15px;
-            width: 80px;
-        }
-         .options select {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 15px;
+            box-sizing: border-box; /* Important */
         }
         button {
-            display: block;
-            width: 100%;
-            padding: 12px 20px;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
+            font-size: 16px;
             transition: background-color 0.3s ease;
-            margin-top: 20px;
         }
-        button:hover:not(:disabled) {
+        button:hover {
             background-color: #0056b3;
         }
         button:disabled {
-            background-color: #ccc;
+            background-color: #cccccc;
             cursor: not-allowed;
         }
-        #status, #progress {
+        #status, #logs, #progress {
             margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #eee;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
-        }
-         #progressBarContainer {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            margin-top: 5px;
-            overflow: hidden; /* Ensures the inner bar stays within bounds */
-            height: 20px; /* Give the progress bar some height */
-        }
-
-        #progressBar {
-            width: 0%;
-            height: 100%;
-            background-color: #4CAF50;
-            text-align: center;
-            line-height: 20px; /* Vertically center text if needed */
-            color: white;
-            transition: width 0.4s ease; /* Smooth transition for width changes */
-            border-radius: 5px; /* Match container radius */
-        }
-        #logOutput {
-            margin-top: 20px;
-            background-color: #222;
-            color: #eee;
             padding: 15px;
-            border-radius: 5px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            min-height: 50px;
             max-height: 300px;
-            overflow-y: scroll;
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
+            overflow-y: auto;
+            white-space: pre-wrap; /* Keep line breaks */
             word-wrap: break-word;
+            font-family: monospace;
+            font-size: 14px;
+        }
+         #logs p, #progress p {
+            margin: 0 0 5px 0;
+            padding: 0;
+        }
+        #downloadLinkContainer {
+            margin-top: 20px;
+            text-align: center;
         }
         #downloadLink {
-            display: none; /* Hidden initially */
-            margin-top: 20px;
-            padding: 10px;
-            text-align: center;
+            display: inline-block;
+            padding: 10px 20px;
             background-color: #28a745;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 4px;
             font-weight: bold;
+            transition: background-color 0.3s ease;
         }
         #downloadLink:hover {
             background-color: #218838;
         }
-        .hidden {
-             display: none;
+        .file-info {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>Image + Audio to Video Creator</h1>
+        <p style="text-align: center;">This tool uses FFmpeg (compiled to WebAssembly) directly in your browser to create a video from your image sequence and an audio file.</p>
 
-        <div class="file-upload-area">
-            <label for="imageFiles">Select Image Files (in order):</label>
-            <input type="file" id="imageFiles" accept="image/*" multiple>
-            <div id="imageList">No images selected.</div>
+        <div>
+            <label for="imageFiles">Select Image Files (in sequence order):</label>
+            <input type="file" id="imageFiles" accept="image/*" multiple required>
+            <div id="imageFileInfo" class="file-info">No images selected.</div>
         </div>
 
-        <div class="file-upload-area">
+        <div>
             <label for="audioFile">Select Audio File:</label>
-            <input type="file" id="audioFile" accept="audio/*">
-            <div id="audioName">No audio file selected.</div>
+            <input type="file" id="audioFile" accept="audio/*" required>
+             <div id="audioFileInfo" class="file-info">No audio file selected.</div>
         </div>
 
-        <div class="options">
-             <h2>Video Options</h2>
-             <label for="frameRate">Image Duration (seconds):</label>
-             <input type="number" id="imageDuration" value="3" min="0.1" step="0.1">
+        <div>
+            <label for="frameRate">Frame Rate (images per second):</label>
+            <input type="number" id="frameRate" value="1" min="0.1" step="0.1" required>
+        </div>
 
-             <label for="outputFormat">Output Format:</label>
-             <select id="outputFormat">
-                 <option value="mp4" selected>MP4</option>
-                 <option value="webm">WEBM</option>
-                 <option value="mov">MOV</option>
-                 <option value="gif">GIF (No Audio)</option>
-             </select>
-             <br><br>
-             <small>Note: Processing takes time, especially for many images or long audio. Your browser might become unresponsive.</small>
+         <div>
+            <label for="outputFormat">Output Video Format:</label>
+            <select id="outputFormat" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <option value="mp4">MP4 (H.264/AAC)</option>
+                <option value="webm">WEBM (VP9/Opus)</option>
+                <option value="gif">GIF (Animated)</option>
+            </select>
         </div>
 
         <button id="createVideoButton" disabled>Load FFmpeg & Create Video</button>
 
-        <div id="status">Status: Idle</div>
-        <div id="progress" class="hidden">
-             Progress: 0%
-             <div id="progressBarContainer">
-                 <div id="progressBar"></div>
-             </div>
-        </div>
-        <div id="logOutput">Logs will appear here...</div>
-        <a id="downloadLink" href="#" download="output.mp4">Download Video</a>
+        <h2>Status</h2>
+        <div id="status">Ready. Select files and click the button.</div>
 
+        <h2>Progress</h2>
+        <div id="progress"><p>Waiting for process to start...</p></div>
+
+        <h2>FFmpeg Logs</h2>
+        <div id="logs"><p>FFmpeg output will appear here...</p></div>
+
+        <div id="downloadLinkContainer" style="display: none;">
+            <a id="downloadLink" href="#" download="output.mp4">Download Video</a>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js" integrity="sha512-qgGXRDRqu+2aR/OBtmWzHhVfkf/b4Rk6bCGAkGdVpt1F1EWt7rC/4x2wV0U0kO5pL4F371b/J7B4cSmT5Qo4zg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        const { FFmpeg } = FFmpegWASM;
-        let ffmpeg = null;
+    <script src="./ffmpeg/node_modules/@ffmpeg/ffmpeg/dist/umd/ffmpeg.js"></script>
 
+    <script>
+        // DOM Elements
         const imageFilesInput = document.getElementById('imageFiles');
         const audioFileInput = document.getElementById('audioFile');
-        const imageListDiv = document.getElementById('imageList');
-        const audioNameDiv = document.getElementById('audioName');
+        const frameRateInput = document.getElementById('frameRate');
+        const outputFormatSelect = document.getElementById('outputFormat');
         const createVideoButton = document.getElementById('createVideoButton');
         const statusDiv = document.getElementById('status');
+        const logsDiv = document.getElementById('logs');
         const progressDiv = document.getElementById('progress');
-        const progressBar = document.getElementById('progressBar');
-        const logOutputDiv = document.getElementById('logOutput');
+        const downloadLinkContainer = document.getElementById('downloadLinkContainer');
         const downloadLink = document.getElementById('downloadLink');
-        const imageDurationInput = document.getElementById('imageDuration');
-        const outputFormatSelect = document.getElementById('outputFormat');
+        const imageFileInfoDiv = document.getElementById('imageFileInfo');
+        const audioFileInfoDiv = document.getElementById('audioFileInfo');
 
-        let uploadedImages = [];
-        let uploadedAudio = null;
+        let ffmpegInstance = null;
+        let ffmpegLoaded = false;
 
-        // --- Core FFmpeg Functions ---
+        // --- FFmpeg Initialization ---
 
-        const getFFmpeg = async () => {
-            if (ffmpeg) {
-                return ffmpeg;
-            }
-            statusDiv.textContent = 'Status: Loading FFmpeg...';
-            logOutputDiv.innerHTML = 'Loading FFmpeg core...\n';
-            ffmpeg = new FFmpeg();
-
-            ffmpeg.on('log', ({ message }) => {
-                logOutputDiv.innerHTML += message + '\n';
-                logOutputDiv.scrollTop = logOutputDiv.scrollHeight; // Auto-scroll
-            });
-
-            ffmpeg.on('progress', ({ progress, time }) => {
-                const progressPercent = Math.round(progress * 100);
-                progressDiv.classList.remove('hidden');
-                progressDiv.firstChild.textContent = `Progress: ${progressPercent}%`;
-                progressBar.style.width = `${progressPercent}%`;
-                if (time) {
-                    // Time is in microseconds
-                    const seconds = (time / 1000000).toFixed(2);
-                     progressDiv.firstChild.textContent += ` (Processed ${seconds}s)`;
-                }
-                 console.log('Progress:', { progress, time });
-            });
+        async function initializeFFmpeg() {
+            statusDiv.textContent = 'Initializing FFmpeg... This might take a moment.';
+            logsDiv.innerHTML = '<p>Loading FFmpeg core...</p>'; // Clear previous logs
+            progressDiv.innerHTML = '<p>Waiting for FFmpeg load...</p>'; // Clear previous progress
 
             try {
-                 // URLs for the core and worker scripts from unpkg CDN
-                const coreURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.js";
-                // Single-threaded version doesn't strictly need workerURL, but providing it doesn't hurt.
-                // For multi-threaded (@ffmpeg/core-mt), workerURL is essential.
-                 // const wasmURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.wasm";
-                 // const workerURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.worker.js";
+                // IMPORTANT: Paths to core components within your 'ffmpeg' folder.
+                // Adjust these paths if your folder structure on GitHub Pages is different.
+                const corePath = './ffmpeg/node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.js';
+                const wasmPath = './ffmpeg/node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.wasm';
+                // Note: If you used @ffmpeg/core-mt (multithreaded), you'd also need workerPath.
+                // const workerPath = './ffmpeg/node_modules/@ffmpeg/core-mt/dist/umd/ffmpeg-core.worker.js';
 
-                await ffmpeg.load({ coreURL }); // Pass CDN URLs
-                statusDiv.textContent = 'Status: FFmpeg Loaded. Ready to process.';
-                logOutputDiv.innerHTML += 'FFmpeg core loaded successfully.\n';
-                createVideoButton.disabled = false; // Enable button after loading
-                createVideoButton.textContent = 'Create Video';
+                // Check if FFmpeg class is available (loaded from the script tag)
+                if (typeof FFmpegWASM === 'undefined' || typeof FFmpegWASM.FFmpeg === 'undefined') {
+                     throw new Error('FFmpeg library script not loaded correctly. Check the script tag path.');
+                }
+                 const { FFmpeg } = FFmpegWASM;
+
+                ffmpegInstance = new FFmpeg();
+
+                // Set up logging and progress handlers
+                ffmpegInstance.on('log', ({ type, message }) => {
+                    const logElement = document.createElement('p');
+                    logElement.textContent = `[${type}] ${message}`;
+                    logsDiv.appendChild(logElement);
+                    logsDiv.scrollTop = logsDiv.scrollHeight; // Auto-scroll
+                    console.log(`FFmpeg Log (${type}):`, message);
+                });
+
+                ffmpegInstance.on('progress', ({ progress, time }) => {
+                    const progressPercent = progress * 100;
+                    const timeInSeconds = time / 1000000; // Time is in microseconds
+                    const progressElement = document.createElement('p');
+                    progressElement.textContent = `Progress: ${progressPercent.toFixed(2)}% (Processed Time: ${timeInSeconds.toFixed(2)}s)`;
+                    progressDiv.innerHTML = ''; // Clear previous progress message
+                    progressDiv.appendChild(progressElement);
+                    console.log(`FFmpeg Progress: ${progressPercent.toFixed(2)}%, Time: ${timeInSeconds.toFixed(2)}s`);
+                });
+
+                // Load the core
+                logsDiv.innerHTML += '<p>Starting FFmpeg.load()...</p>';
+                statusDiv.textContent = 'Loading FFmpeg core (JS/WASM)...';
+                await ffmpegInstance.load({
+                    coreURL: corePath,
+                    wasmURL: wasmPath,
+                    // workerURL: workerPath, // Only needed for core-mt
+                });
+
+                ffmpegLoaded = true;
+                statusDiv.textContent = 'FFmpeg loaded successfully. Ready to create video.';
+                logsDiv.innerHTML += '<p>FFmpeg core loaded.</p>';
+                checkInputsAndEnableButton(); // Re-check if files were selected before load finished
+
             } catch (error) {
-                statusDiv.textContent = 'Status: Error loading FFmpeg.';
-                logOutputDiv.innerHTML += `Error loading FFmpeg: ${error}\n`;
-                console.error("FFmpeg load error:", error);
-                 createVideoButton.disabled = true;
-                 createVideoButton.textContent = 'Error Loading FFmpeg';
+                ffmpegLoaded = false;
+                statusDiv.textContent = `Error loading FFmpeg: ${error.message}`;
+                logsDiv.innerHTML += `<p style="color: red;">Error loading FFmpeg: ${error}</p>`;
+                console.error("FFmpeg loading error:", error);
+                createVideoButton.disabled = true; // Keep disabled on error
             }
-            return ffmpeg;
-        };
+        }
 
-        // Initialize FFmpeg on page load but don't block UI
-        getFFmpeg();
+        // --- File Handling and UI ---
 
-        // --- Utility Functions ---
+        function checkInputsAndEnableButton() {
+            const imagesSelected = imageFilesInput.files && imageFilesInput.files.length > 0;
+            const audioSelected = audioFileInput.files && audioFileInput.files.length > 0;
+
+            // Update file info display
+            imageFileInfoDiv.textContent = imagesSelected ? `${imageFilesInput.files.length} image(s) selected.` : 'No images selected.';
+            audioFileInfoDiv.textContent = audioSelected ? `Audio: ${audioFileInput.files[0].name}` : 'No audio file selected.';
+
+            // Enable button only if FFmpeg is loaded AND files are selected
+            createVideoButton.disabled = !(ffmpegLoaded && imagesSelected && audioSelected);
+        }
+
+        // Utility to read file as ArrayBuffer
         const readFileAsArrayBuffer = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => resolve(new Uint8Array(reader.result));
+                reader.onload = (event) => resolve(new Uint8Array(event.target.result));
                 reader.onerror = (error) => reject(error);
                 reader.readAsArrayBuffer(file);
             });
         };
 
-        // --- Event Listeners ---
+        // Event listeners for file inputs
+        imageFilesInput.addEventListener('change', checkInputsAndEnableButton);
+        audioFileInput.addEventListener('change', checkInputsAndEnableButton);
 
-        imageFilesInput.addEventListener('change', (event) => {
-            uploadedImages = Array.from(event.target.files);
-             // Sort files by name to ensure order, assuming names like image01.jpg, image02.jpg etc.
-            // A more robust solution might require user confirmation of order or a different UI.
-            uploadedImages.sort((a, b) => a.name.localeCompare(b.name));
-            if (uploadedImages.length > 0) {
-                imageListDiv.textContent = `${uploadedImages.length} image(s) selected: ${uploadedImages.map(f => f.name).join(', ')}`;
-            } else {
-                imageListDiv.textContent = 'No images selected.';
-            }
-             checkEnableButton();
-        });
-
-        audioFileInput.addEventListener('change', (event) => {
-            uploadedAudio = event.target.files[0];
-            if (uploadedAudio) {
-                audioNameDiv.textContent = `Audio selected: ${uploadedAudio.name}`;
-            } else {
-                audioNameDiv.textContent = 'No audio file selected.';
-            }
-            checkEnableButton();
-        });
-
-         function checkEnableButton() {
-            // Enable the main button only if ffmpeg is loaded AND files are selected
-             if (ffmpeg && ffmpeg.loaded && uploadedImages.length > 0 && (uploadedAudio || outputFormatSelect.value === 'gif')) {
-                createVideoButton.disabled = false;
-                 createVideoButton.textContent = 'Create Video';
-            } else if (ffmpeg && !ffmpeg.loaded) {
-                createVideoButton.disabled = true; // Keep disabled if ffmpeg isn't loaded yet
-                 createVideoButton.textContent = 'Load FFmpeg & Create Video';
-            } else {
-                 createVideoButton.disabled = true;
-                 createVideoButton.textContent = 'Select Files First';
-            }
-        }
-
+        // --- Video Creation Logic ---
 
         createVideoButton.addEventListener('click', async () => {
-             if (!ffmpeg || !ffmpeg.loaded) {
-                statusDiv.textContent = 'Status: FFmpeg not loaded yet.';
+            if (!ffmpegLoaded || !ffmpegInstance) {
+                statusDiv.textContent = 'FFmpeg is not loaded. Please wait or reload.';
                 return;
             }
-             if (uploadedImages.length === 0) {
-                statusDiv.textContent = 'Status: Please select image files.';
-                return;
-            }
-             const outputFormat = outputFormatSelect.value;
-             if (!uploadedAudio && outputFormat !== 'gif') {
-                statusDiv.textContent = 'Status: Please select an audio file (or choose GIF format).';
-                return;
+            if (imageFilesInput.files.length === 0 || audioFileInput.files.length === 0) {
+                 statusDiv.textContent = 'Please select image files and an audio file.';
+                 return;
             }
 
             createVideoButton.disabled = true;
-            statusDiv.textContent = 'Status: Processing... Writing files to virtual memory.';
-            logOutputDiv.innerHTML = 'Starting video creation...\n';
-             progressDiv.classList.add('hidden'); // Reset progress bar display
-             progressBar.style.width = '0%';
-             downloadLink.style.display = 'none'; // Hide previous download link
+            statusDiv.textContent = 'Starting video creation process...';
+            logsDiv.innerHTML = '<p>Process started...</p>'; // Clear previous logs
+            progressDiv.innerHTML = '<p>Preparing files...</p>'; // Clear previous progress
+            downloadLinkContainer.style.display = 'none'; // Hide previous download link
 
             try {
-                // 1. Write files to FFmpeg's virtual file system
-                logOutputDiv.innerHTML += 'Writing image files...\n';
-                for (let i = 0; i < uploadedImages.length; i++) {
-                    const file = uploadedImages[i];
-                    const data = await readFileAsArrayBuffer(file);
-                    // Pad index for consistent naming (e.g., img001.png)
-                     const paddedIndex = String(i + 1).padStart(3, '0');
-                     const extension = file.name.split('.').pop() || 'png'; // Use original extension or default to png
-                     const inputFilename = `img${paddedIndex}.${extension}`;
-                    await ffmpeg.writeFile(inputFilename, data);
-                    logOutputDiv.innerHTML += `Written: ${inputFilename}\n`;
-                }
-
-                 const audioInputFilename = 'input_audio'; // Base name, ffmpeg detects format
-                 let audioExtension = '';
-                 if (uploadedAudio) {
-                    logOutputDiv.innerHTML += 'Writing audio file...\n';
-                    const audioData = await readFileAsArrayBuffer(uploadedAudio);
-                     audioExtension = uploadedAudio.name.split('.').pop() || 'mp3';
-                    await ffmpeg.writeFile(`${audioInputFilename}.${audioExtension}`, audioData);
-                    logOutputDiv.innerHTML += `Written: ${audioInputFilename}.${audioExtension}\n`;
-                }
-
-                statusDiv.textContent = 'Status: Running FFmpeg command...';
-                logOutputDiv.innerHTML += 'Executing FFmpeg command...\n';
-
-                // 2. Construct and Run FFmpeg Command
-                const imageDuration = parseFloat(imageDurationInput.value) || 3;
-                if (imageDuration <= 0) {
-                     throw new Error("Image duration must be positive.");
-                }
-                const frameRate = 1 / imageDuration; // Calculate framerate based on duration
-
+                const imageFiles = Array.from(imageFilesInput.files).sort((a, b) => a.name.localeCompare(b.name)); // Ensure order
+                const audioFile = audioFileInput.files[0];
+                const frameRate = frameRateInput.value;
+                const outputFormat = outputFormatSelect.value;
                 const outputFilename = `output.${outputFormat}`;
-                const args = [
-                    '-framerate', `${frameRate}`, // Input framerate based on desired duration per image
-                     '-i', 'img%03d.png', // Input image sequence pattern (assumes png, adjust if needed or analyze first image)
-                ];
 
-                 // Add audio input if present and format is not GIF
-                 if (uploadedAudio && outputFormat !== 'gif') {
-                    args.push('-i', `${audioInputFilename}.${audioExtension}`);
+                // 1. Write files to FFmpeg's virtual file system
+                statusDiv.textContent = 'Writing image files to virtual system...';
+                logsDiv.innerHTML += `<p>Writing ${imageFiles.length} images...</p>`;
+                for (let i = 0; i < imageFiles.length; i++) {
+                    const file = imageFiles[i];
+                    const data = await readFileAsArrayBuffer(file);
+                    // Pad index for consistent naming (e.g., img001.png, img002.png)
+                    const paddedIndex = String(i + 1).padStart(3, '0');
+                    const filename = `img${paddedIndex}.png`; // Assuming PNG, adjust if needed
+                    await ffmpegInstance.FS('writeFile', filename, data);
+                    logsDiv.innerHTML += `<p>Written: ${filename}</p>`;
                 }
 
-                 // Add common output options
-                if (outputFormat === 'mp4') {
-                    args.push(
-                        '-c:v', 'libx264',     // Video codec
-                        '-preset', 'medium', // Encoding speed/quality trade-off
-                        '-tune', 'stillimage', // Optimize for still images
-                         '-crf', '23', // Constant Rate Factor (lower is higher quality, 18-28 is common)
-                        '-pix_fmt', 'yuv420p'  // Pixel format for compatibility
-                     );
-                 } else if (outputFormat === 'webm') {
-                     args.push(
-                         '-c:v', 'libvpx-vp9', // VP9 codec for WebM
-                         '-crf', '30',         // CRF for VP9 (adjust as needed)
-                         '-b:v', '0',          // Needed for CRF mode with VP9
-                         '-pix_fmt', 'yuv420p'
-                     );
-                 } else if (outputFormat === 'mov') {
-                     args.push(
-                         '-c:v', 'libx264',     // Use x264 for MOV as well (widely compatible)
-                         '-preset', 'medium',
-                         '-tune', 'stillimage',
-                         '-crf', '23',
-                         '-pix_fmt', 'yuv420p'
-                     );
-                 } else if (outputFormat === 'gif') {
-                     // GIF specific settings - high quality often needs palette generation
-                     args.push(
-                         // Optional: Palette generation for better quality GIF
-                         // This would require a two-pass approach which is more complex
-                         // Simple direct conversion:
-                          '-vf', 'fps=10,scale=320:-1:flags=lanczos', // Example filter: 10fps, 320px wide, lanczos scaling
-                         '-loop', '0' // 0 for infinite loop, -1 for no loop, N for N+1 loops
-                     );
+                statusDiv.textContent = 'Writing audio file to virtual system...';
+                logsDiv.innerHTML += `<p>Writing audio: ${audioFile.name}</p>`;
+                const audioData = await readFileAsArrayBuffer(audioFile);
+                const audioFilename = 'audio.' + audioFile.name.split('.').pop(); // Get extension
+                await ffmpegInstance.FS('writeFile', audioFilename, audioData);
+                logsDiv.innerHTML += '<p>All input files written.</p>';
+
+
+                // 2. Construct FFmpeg command arguments
+                // Example command: ffmpeg -framerate 1 -i img%03d.png -i audio.mp3 -c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p -shortest output.mp4
+                const args = [];
+                args.push('-framerate', frameRate);
+                args.push('-i', 'img%03d.png'); // Input image sequence pattern
+                args.push('-i', audioFilename);  // Input audio file
+
+                // Output settings based on format
+                switch (outputFormat) {
+                    case 'mp4':
+                        args.push('-c:v', 'libx264');     // Video codec
+                        args.push('-tune', 'stillimage'); // Optimize for still images
+                        args.push('-c:a', 'aac');         // Audio codec
+                        args.push('-b:a', '192k');        // Audio bitrate
+                        args.push('-pix_fmt', 'yuv420p'); // Pixel format for compatibility
+                        break;
+                    case 'webm':
+                         args.push('-c:v', 'libvpx-vp9'); // Video codec (VP9)
+                         args.push('-crf', '30');         // Constant Rate Factor (quality, lower is better)
+                         args.push('-b:v', '0');          // Needed for CRF mode
+                         args.push('-c:a', 'libopus');    // Audio codec (Opus)
+                         args.push('-b:a', '128k');       // Audio bitrate
+                         break;
+                    case 'gif':
+                         // GIF creation often involves a palette generation step first for better quality,
+                         // but for simplicity, we'll do a direct conversion.
+                         // You might need to adjust filters for better results (e.g., fps, scale).
+                         args.push('-vf', `fps=${frameRate},scale=w=480:h=-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`); // Example filter for GIF
+                         args.push('-loop', '0'); // 0 for infinite loop
+                         // No audio for GIF
+                         args.pop(); // Remove audio input
+                         args.pop();
+                         break;
+                    default:
+                        throw new Error(`Unsupported output format: ${outputFormat}`);
+                }
+
+
+                // Add '-shortest' only if it's not GIF (GIF doesn't have audio duration to match)
+                 if (outputFormat !== 'gif') {
+                    args.push('-shortest'); // End video when the shortest input (images or audio) ends
                  }
+                args.push(outputFilename); // Output file name
+
+                statusDiv.textContent = 'Executing FFmpeg command...';
+                logsDiv.innerHTML += `<p>Running command: ffmpeg ${args.join(' ')}</p>`;
+                progressDiv.innerHTML = '<p>Processing...</p>';
+
+                // 3. Execute the command
+                await ffmpegInstance.exec(args);
+
+                statusDiv.textContent = 'FFmpeg command finished. Reading output file...';
+                logsDiv.innerHTML += '<p>Execution complete.</p>';
+
+                // 4. Read the output file
+                const outputData = await ffmpegInstance.FS('readFile', outputFilename);
+
+                statusDiv.textContent = 'Video created successfully!';
+                logsDiv.innerHTML += `<p>Output file "${outputFilename}" read successfully.</p>`;
+
+                // 5. Create download link
+                const blob = new Blob([outputData.buffer], { type: outputFormat === 'mp4' ? 'video/mp4' : (outputFormat === 'webm' ? 'video/webm' : 'image/gif') });
+                const url = URL.createObjectURL(blob);
+                downloadLink.href = url;
+                downloadLink.download = outputFilename;
+                downloadLinkContainer.style.display = 'block'; // Show download link
 
 
-                 // Add audio codec options if audio is used
-                if (uploadedAudio && outputFormat !== 'gif') {
-                    args.push(
-                        '-c:a', 'aac',         // Audio codec (AAC is common)
-                        '-b:a', '192k'       // Audio bitrate
-                    );
-                 } else if (outputFormat !== 'gif') {
-                     // If no audio file provided but format supports audio, add silent audio
-                     // This prevents issues with players expecting an audio track.
-                      args.push('-f', 'lavfi', '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100');
-                      args.push('-c:a', 'aac', '-b:a', '128k'); // Add silent audio track
-                 }
-
-                 // Use -shortest if audio is present to end video with audio
-                 if (uploadedAudio && outputFormat !== 'gif') {
-                     args.push('-shortest');
-                 } else if (outputFormat !== 'gif') {
-                     // If we added silent audio, we need to define its duration,
-                     // which should match the total image duration.
-                     const totalVideoDuration = uploadedImages.length * imageDuration;
-                     args.push('-t', `${totalVideoDuration}`);
-                 }
-
-
-                args.push(outputFilename); // Output file
-
-                logOutputDiv.innerHTML += `\nRunning: ffmpeg ${args.join(' ')}\n\n`;
-                progressDiv.classList.remove('hidden'); // Show progress bar
-
-                 // Execute the command
-                await ffmpeg.exec(args);
-
-                statusDiv.textContent = 'Status: Processing complete. Reading output file.';
-                logOutputDiv.innerHTML += '\nFFmpeg command finished.\nReading output file...\n';
-
-                // 3. Read the output file
-                const outputData = await ffmpeg.readFile(outputFilename);
-
-                // 4. Create download link
-                const videoBlob = new Blob([outputData.buffer], { type: `video/${outputFormat === 'webm' ? 'webm' : outputFormat}` }); // Adjust MIME type if necessary
-                const videoUrl = URL.createObjectURL(videoBlob);
-                downloadLink.href = videoUrl;
-                downloadLink.download = `video_output.${outputFormat}`;
-                downloadLink.style.display = 'block'; // Show the download link
-
-                statusDiv.textContent = 'Status: Video created successfully! Click link to download.';
-                logOutputDiv.innerHTML += `Output file "${outputFilename}" created.\n`;
-
-                 // Cleanup virtual files (optional, ffmpeg instance might clear on reload/new load)
+                // 6. Clean up virtual file system (optional but good practice)
+                logsDiv.innerHTML += '<p>Cleaning up virtual files...</p>';
                  try {
-                     logOutputDiv.innerHTML += 'Cleaning up virtual files...\n';
-                     for (let i = 0; i < uploadedImages.length; i++) {
+                    for (let i = 0; i < imageFiles.length; i++) {
                          const paddedIndex = String(i + 1).padStart(3, '0');
-                         const extension = uploadedImages[i].name.split('.').pop() || 'png';
-                         await ffmpeg.deleteFile(`img${paddedIndex}.${extension}`);
-                     }
-                     if (uploadedAudio) {
-                          await ffmpeg.deleteFile(`${audioInputFilename}.${audioExtension}`);
-                     }
-                     await ffmpeg.deleteFile(outputFilename);
-                      logOutputDiv.innerHTML += 'Cleanup complete.\n';
-                 } catch (cleanupError) {
-                     logOutputDiv.innerHTML += `Warning: Error during cleanup: ${cleanupError}\n`;
+                         await ffmpegInstance.FS('unlink', `img${paddedIndex}.png`);
+                    }
+                     await ffmpegInstance.FS('unlink', audioFilename);
+                     await ffmpegInstance.FS('unlink', outputFilename);
+                     logsDiv.innerHTML += '<p>Cleanup complete.</p>';
+                 } catch(cleanupError) {
+                    logsDiv.innerHTML += `<p style="color: orange;">Warning during cleanup: ${cleanupError}</p>`;
                  }
 
 
             } catch (error) {
-                statusDiv.textContent = 'Status: Error during processing.';
-                logOutputDiv.innerHTML += `\n--- ERROR ---\n${error}\n-------------\n`;
-                console.error('FFmpeg processing error:', error);
+                statusDiv.textContent = `Error during video creation: ${error}`;
+                logsDiv.innerHTML += `<p style="color: red;">Error: ${error}</p>`;
+                console.error("Video creation error:", error);
             } finally {
-                 // Re-enable button if ffmpeg is still loaded, regardless of success/failure
-                 if (ffmpeg && ffmpeg.loaded) {
-                     createVideoButton.disabled = false;
-                     createVideoButton.textContent = 'Create Video';
-                 } else {
-                     createVideoButton.disabled = true; // Keep disabled if ffmpeg load failed earlier
+                // Re-enable button if FFmpeg is still loaded
+                createVideoButton.disabled = !ffmpegLoaded;
+                 // Ensure progress shows completion or last status
+                 if (!statusDiv.textContent.includes('Error') && !statusDiv.textContent.includes('successfully')) {
+                    progressDiv.innerHTML = '<p>Process ended.</p>';
+                 } else if (statusDiv.textContent.includes('successfully')) {
+                     progressDiv.innerHTML = '<p>Done.</p>';
                  }
-                // Ensure progress bar is hidden if process finished quickly or failed early
-                 // if (progressBar.style.width !== '100%') {
-                 //    progressDiv.classList.add('hidden');
-                 // }
+
             }
         });
 
+        // --- Initial Load Trigger ---
+        // Automatically start loading FFmpeg when the page loads.
+        // Alternatively, you could trigger this with the button click
+        // if you prefer lazy loading.
+        document.addEventListener('DOMContentLoaded', initializeFFmpeg);
+
     </script>
+
 </body>
 </html>
