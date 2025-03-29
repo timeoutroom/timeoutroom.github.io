@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image + Audio to Video Converter</title>
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #5d3fd3;
+            --accent-color: #ff6b6b;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background-color: white;
+            padding:.25rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .panel-header {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-body {
+            padding: 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button.accent {
+            background-color: var(--accent-color);
+        }
+        
+        button.accent:hover {
+            background-color: #ff5252;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="file"], 
+        input[type="text"], 
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: #f9f9f9;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="file"]:hover, 
+        input[type="text"]:hover, 
+        input[type="number"]:hover,
+        select:hover {
+            border-color: var(--primary-color);
+        }
+        
+        input[type="file"]:focus, 
+        input[type="text"]:focus, 
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(93, 63, 211, 0.2);
+        }
+        
+        .file-input-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-container input[type="file"] {
+            position: absolute;
+            font-size: 100px;
+            opacity: 0;
+            right: 0;
+            top: 0;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 15px;
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            border: 1px dashed #ccc;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .file-input-label:hover {
+            background-color: #e6e9ed;
+            border-color: var(--primary-color);
+        }
+        
+        .file-input-label i {
+            margin-right: 8px;
+        }
+        
+        .file-list {
+            margin-top: 15px;
+            border: 1px solid #eee;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-item:nth-child(odd) {
+            background-color: #f0f2f5;
+        }
+        
+        .file-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 10px;
+        }
+        
+        .file-size {
+            font-size: 0.85rem;
+            color: #666;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+        
+        .remove-file {
+            color: var(--accent-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        
+        .remove-file:hover {
+            color: #ff5252;
+        }
+        
+        .preview-container {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .preview-item {
+            position: relative;
+            height: 150px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .preview-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .preview-item:hover .preview-overlay {
+            opacity: 1;
+        }
+        
+        .audio-preview {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+            background-color: #f0f2f5;
+            border-radius: 20px;
+            height: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s;
+            border-radius: 20px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            background-color: #f0f2f5;
+            display: none;
+        }
+        
+        .status.success {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            display: block;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.warning {
+            display: block;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .status.info {
+            display: block;
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .output-container {
+            margin-top: 20px;
+        }
+        
+        .output-video {
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .output-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .log-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f2f5;
+            border-radius: var(--border-radius);
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .log-entry:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .log-time {
+            color: #666;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+        
+        .log-level-info {
+            color: var(--primary-color);
+        }
+        
+        .log-level-warning {
+            color: #ffc107;
+        }
+        
+        .log-level-error {
+            color: var(--accent-color);
+        }
+        
+        .settings-panel {
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 576px) {
+            .settings-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .dropzone {
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 107, 255, 0.05);
+        }
+        
+        .dropzone-icon {
+            font-size: 2rem;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        
+        .dropzone:hover .dropzone-icon, .dropzone.dragover .dropzone-icon {
+            color: var(--primary-color);
+        }
+        
+        .sort-handle {
+            cursor: grab;
+            margin-right: 10px;
+        }
+        
+        .dragging {
+            opacity: 0.5;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 90%;
+            max-width: 600px;
+            overflow: hidden;
+            animation: modal-appear 0.3s ease-out;
+        }
+        
+        @keyframes modal-appear {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .modal-close:hover {
+            color: #f8f9fa;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .timeline-container {
+            margin-top: 20px;
+            position: relative;
+            height: 150px;
+            background-color: #f0f2f5;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .timeline {
+            height: 100%;
+            display: flex;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .timeline-item {
+            min-width: 100px;
+            height: 100%;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-item-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .timeline-audio-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .timeline-cursor {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--accent-color);
+            z-index: 10;
+            left: 0;
+        }
+        
+        .waveform-container {
+            height: 100px;
+            width: 100%;
+            margin-top: 20px;
+            background-color: #f0f2f5;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Image + Audio to Video Converter</h1>
+            <p class="subtitle">Combine images and audio to create custom videos</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Input Files</h2>
+                    <div class="toolbar">
+                        <button id="clear-all-btn" class="accent">Clear All</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="images">Images</div>
+                        <div class="tab" data-tab="audio">Audio</div>
+                        <div class="tab" data-tab="settings">Settings</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="images-tab">
+                        <div class="dropzone" id="image-dropzone">
+                            <div class="dropzone-icon">📷</div>
+                            <p>Drag and drop image files here, or click to browse</p>
+                            <p class="subtitle">Supported formats: JPG, PNG, GIF, BMP, WEBP</p>
+                            <input type="file" id="image-file-input" multiple accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <div class="file-list" id="image-file-list">
+                            <!-- Image files will be listed here -->
+                        </div>
+                        
+                        <div class="preview-container" id="image-preview-container">
+                            <!-- Image previews will be shown here -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="audio-tab">
+                        <div class="dropzone" id="audio-dropzone">
+                            <div class="dropzone-icon">🎵</div>
+                            <p>Drag and drop audio files here, or click to browse</p>
+                            <p class="subtitle">Supported formats: MP3, WAV, OGG, M4A</p>
+                            <input type="file" id="audio-file-input" accept="audio/*" style="display: none;">
+                        </div>
+                        
+                        <div class="file-list" id="audio-file-list">
+                            <!-- Audio files will be listed here -->
+                        </div>
+                        
+                        <div class="audio-preview" id="audio-preview-container">
+                            <!-- Audio preview will be shown here -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="settings-tab">
+                        <div class="settings-panel">
+                            <h3>Video Settings</h3>
+                            <div class="settings-row">
+                                <div class="form-group">
+                                    <label for="output-width">Width (px)</label>
+                                    <input type="number" id="output-width" value="1280" min="320" max="3840">
+                                </div>
+                                <div class="form-group">
+                                    <label for="output-height">Height (px)</label>
+                                    <input type="number" id="output-height" value="720" min="240" max="2160">
+                                </div>
+                            </div>
+                            
+                            <div class="settings-row">
+                                <div class="form-group">
+                                    <label for="frame-rate">Frame Rate (FPS)</label>
+                                    <input type="number" id="frame-rate" value="30" min="15" max="60">
+                                </div>
+                                <div class="form-group">
+                                    <label for="image-duration">Image Duration (seconds)</label>
+                                    <input type="number" id="image-duration" value="5" min="1" max="30" step="0.1">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="transition-type">Transition Type</label>
+                                <select id="transition-type">
+                                    <option value="none">None</option>
+                                    <option value="fade" selected>Fade</option>
+                                    <option value="slide">Slide</option>
+                                    <option value="zoom">Zoom</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="transition-duration">Transition Duration (seconds)</label>
+                                <input type="number" id="transition-duration" value="1" min="0.1" max="5" step="0.1">
+                            </div>
+                            
+                            <h3>Output Settings</h3>
+                            <div class="form-group">
+                                <label for="output-format">Output Format</label>
+                                <select id="output-format">
+                                    <option value="mp4" selected>MP4</option>
+                                    <option value="webm">WebM</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="output-quality">Quality</label>
+                                <select id="output-quality">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="output-filename">Output Filename</label>
+                                <input type="text" id="output-filename" value="my_video">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Preview & Output</h2>
+                    <div class="toolbar">
+                        <button id="create-video-btn" disabled>Create Video</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="status" id="status-message"></div>
+                    
+                    <div class="timeline-container">
+                        <div class="timeline" id="timeline">
+                            <!-- Timeline items will be generated here -->
+                        </div>
+                        <div class="timeline-cursor" id="timeline-cursor"></div>
+                    </div>
+                    
+                    <div class="waveform-container" id="waveform-container">
+                        <!-- Audio waveform will be displayed here -->
+                    </div>
+                    
+                    <div class="progress-container" id="progress-container" style="display: none;">
+                        <div class="progress-bar" id="progress-bar"></div>
+                        <div class="progress-text" id="progress-text">0%</div>
+                    </div>
+                    
+                    <div class="output-container" id="output-container" style="display: none;">
+                        <video id="output-video" class="output-video" controls></video>
+                        <div class="output-actions">
+                            <button id="download-btn">Download Video</button>
+                            <button id="share-btn">Share</button>
+                        </div>
+                    </div>
+                    
+                    <div class="log-container" id="log-container">
+                        <div class="log-entry">
+                            <span class="log-time">[00:00:00]</span>
+                            <span class="log-level-info">Ready to create video. Add images and audio to get started.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="share-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Share Your Video</h3>
+                <button class="modal-close" id="share-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="share-link">Direct Link</label>
+                    <input type="text" id="share-link" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Share on Social Media</label>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn-sm" id="share-twitter">Twitter</button>
+                        <button class="btn-sm" id="share-facebook">Facebook</button>
+                        <button class="btn-sm" id="share-linkedin">LinkedIn</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="embed-code">Embed Code</label>
+                    <textarea id="embed-code" rows="4" readonly style="width: 100%; padding: 10px;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="copy-link-btn">Copy Link</button>
+                <button id="share-modal-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="processing-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Processing Video</h3>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div style="margin: 20px 0;">
+                    <div class="loading-spinner" style="width: 50px; height: 50px; border-width: 5px;"></div>
+                </div>
+                <p>Please wait while your video is being created...</p>
+                <div class="progress-container" style="margin-top: 20px;">
+                    <div class="progress-bar" id="modal-progress-bar"></div>
+                    <div class="progress-text" id="modal-progress-text">0%</div>
+                </div>
+                <p id="processing-status">Initializing FFmpeg...</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Image + Audio to Video Converter | Built with HTML, CSS, JavaScript, and FFmpeg</p>
+    </footer>
