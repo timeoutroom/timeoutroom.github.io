@@ -199,7 +199,7 @@
         </div>
     </div>
 
-    <script src="./ffmpeg/node_modules/@ffmpeg/ffmpeg/dist/umd/ffmpeg.js"></script>
+    <script src="./ffmpeg/nodemodules/ffmpeg/ffmpeg/dist/umd/ffmpeg.js"></script>
 
     <script>
         // --- DOM Elements ---
@@ -317,10 +317,9 @@
 
                 // Define core and worker paths based on the assumed structure
                 // ** IMPORTANT: Adjust these paths if your `ffmpeg` folder structure is different **
-                 const coreURL = './ffmpeg/node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.js';
-                 const wasmURL = './ffmpeg/node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.wasm';
+                 const coreURL = './ffmpeg/nodemodules/ffmpeg/core/dist/umd/ffmpeg-core.js';
+                 const wasmURL = './ffmpeg/nodemodules/ffmpeg/core/dist/umd/ffmpeg-core.wasm';
                  // Use the worker file provided in the UMD build of @ffmpeg/ffmpeg
-                 const workerURL = './ffmpeg/node_modules/@ffmpeg/ffmpeg/dist/umd/814.ffmpeg.js'; // Or potentially ./ffmpeg/node_modules/@ffmpeg/core/dist/umd/ffmpeg-core.worker.js if using MT core
 
                 await ffmpeg.load({
                      coreURL,
